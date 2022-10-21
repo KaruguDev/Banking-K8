@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zipkin-deployment
+  labels:
+    app: zipkin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zipkin
+  template:
+    metadata:
+      labels:
+        app: zipkin
+    spec:
+      containers:
+        - name: zipkin
+          image: openzipkin/zipkin
+          ports:
+            - containerPort: 9411
+          env:
+            - name: RABBIT_QUEUE
+              valueFrom:
+                configMapKeyRef:
+                  name: banking-configmap
+                  key: RABBIT_QUEUE
+            - name: RABBIT_ADDRESSES
+              valueFrom:
+                configMapKeyRef:
+                  name: banking-configmap
+                  key: RABBIT_ADDRESSES
+            - name: RABBIT_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: banking-configmap
+                  key: RABBIT_USER
+
+            - name: RABBIT_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: banking-configmap
+                  key: RABBIT_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zipkin-service
+spec:
+  selector:
+    app: zipkin
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 9411
+      targetPort: 9411

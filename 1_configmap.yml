@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: banking-configmap
+data:
+  SPRING_ZIPKIN_BASEURL: http://zipkin-service:9411/
+  SPRING_ZIPKIN_SENDER_TYPE: rabbit
+  SPRING_PROFILES_ACTIVE: prod
+  SPRING_CONFIG_IMPORT: configserver:http://configserver-service:8050/
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver-service:8055/eureka/
+  SPRING_RABBITMQ_HOST: rabbitmq-service
+  SPRING_RABBITMQ_PORT: '5672'
+  RABBIT_QUEUE: zipkin-queue
+  RABBIT_ADDRESSES: rabbitmq-service:5672
+  RABBIT_PASSWORD: guest
+  RABBIT_USER: guest

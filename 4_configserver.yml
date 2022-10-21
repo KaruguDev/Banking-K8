@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: configserver-deployment
+  labels:
+    app: configserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: configserver
+  template:
+    metadata:
+      labels:
+        app: configserver
+    spec:
+      containers:
+        - name: configserver
+          image: pkarugu/config-server:latest
+          ports:
+            - containerPort: 8050
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                configMapKeyRef:
+                  name: banking-configmap
+                  key: SPRING_PROFILES_ACTIVE
+            - name: SPRING_ZIPKIN_BASEURL
+              valueFrom:
+                configMapKeyRef:
+                  name: banking-configmap
+                  key: SPRING_ZIPKIN_BASEURL
+            - name: SPRING_ZIPKIN_SENDER_TYPE
+              valueFrom:
+                configMapKeyRef:
+                  name: banking-configmap
+                  key: SPRING_ZIPKIN_SENDER_TYPE
+            - name: SPRING_ZIPKIN_RABBITMQ_QUEUE
+              valueFrom:
+                configMapKeyRef:
+                  name: banking-configmap
+                  key: RABBIT_QUEUE
+            - name: SPRING_RABBITMQ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: banking-configmap
+                  key: SPRING_RABBITMQ_HOST
+            - name: SPRING_RABBITMQ_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: banking-configmap
+                  key: SPRING_RABBITMQ_PORT
+            - name: SPRING_RABBITMQ_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: banking-configmap
+                  key: RABBIT_USER
+            - name: SPRING_RABBITMQ_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: banking-configmap
+                  key: RABBIT_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: configserver-service
+spec:
+  selector:
+    app: configserver
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 8050
+      targetPort: 8050
